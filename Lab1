@@ -5,7 +5,7 @@ namespace ConsoleMenu
 {
     class Program
     {
-        static string filePath = "C:\\Users\\MaxPC\\Desktop\\LoremIpsum.txt"; // Поле, яке містить шлях до файлу з початковим текстом
+        static string filePath = "C:\\Users\\MaxPC\\Desktop\\LoremIpsum.txt";
 
         static void Main(string[] args)
         {
@@ -45,9 +45,6 @@ namespace ConsoleMenu
 
         static double Calculate(string expression)
         {
-            // Виконуємо обчислення математичного виразу за допомогою методу Evaluate класу DataTable.
-            // Важливо: цей підхід не є найефективнішим та може бути небезпечним, якщо ви дозволяєте користувачеві вводити будь-який вираз.
-            // Рекомендується додатково перевіряти та обмежувати введення користувача.
             System.Data.DataTable dataTable = new System.Data.DataTable();
             return Convert.ToDouble(dataTable.Compute(expression, ""));
         }
