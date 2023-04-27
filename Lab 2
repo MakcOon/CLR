@@ -35,6 +35,10 @@ class Program
         });
     }
 }
+
+
+
+
 //Друге завдання
 using System;
 using System.Threading.Tasks;
