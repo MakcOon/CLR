@@ -1,0 +1,75 @@
+using System;
+using System.Reflection;
+
+namespace ReflectionExample
+{
+    class MyClass
+    {
+        private int privateField = 10;
+        protected string protectedField = "Hello";
+        public bool publicField = true;
+        internal double internalField = 3.14;
+        public static string staticField = "Static";
+
+        public MyClass(int value)
+        {
+            privateField = value;
+        }
+
+        public void PublicMethod()
+        {
+            Console.WriteLine("Public Method Called");
+        }
+
+        private string PrivateMethod(int arg1, bool arg2)
+        {
+            Console.WriteLine("Private Method Called");
+            return $"{arg1} - {arg2}";
+        }
+
+        protected void ProtectedMethod(string arg)
+        {
+            Console.WriteLine("Protected Method Called");
+            Console.WriteLine($"Argument: {arg}");
+        }
+
+        static void Main(string[] args)
+        {
+            //Type and TypeInfo of MyClass
+            Type myClassType = typeof(MyClass);
+            TypeInfo myClassTypeInfo = myClassType.GetTypeInfo();
+
+            Console.WriteLine("Class Name: " + myClassType.Name);
+            Console.WriteLine("Is Abstract: " + myClassTypeInfo.IsAbstract);
+            Console.WriteLine("Is Sealed: " + myClassTypeInfo.IsSealed);
+            Console.WriteLine("Is Class: " + myClassTypeInfo.IsClass);
+
+            Console.WriteLine();
+
+            //MemberInfo of MyClass
+            MemberInfo[] myClassMembers = myClassType.GetMembers();
+            foreach (MemberInfo member in myClassMembers)
+            {
+                Console.WriteLine("Member Name: " + member.Name + " - " + member.MemberType);
+            }
+
+            Console.WriteLine();
+
+            //FieldInfo of MyClass
+            FieldInfo[] myClassFields = myClassType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (FieldInfo field in myClassFields)
+            {
+                Console.WriteLine("Field Name: " + field.Name + " - " + field.FieldType);
+            }
+
+            Console.WriteLine();
+
+            //MethodInfo of MyClass
+            MethodInfo privateMethodInfo = myClassType.GetMethod("PrivateMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+            object myClassObject = Activator.CreateInstance(myClassType, 5);
+            object[] parameters = new object[] { 10, true };
+            string result = (string)privateMethodInfo.Invoke(myClassObject, parameters);
+            Console.WriteLine("Result of Private Method: " + result);
+        }
+    }
+}
