@@ -1,0 +1,80 @@
+//Перше завдання
+using System;
+using System.Threading;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        StartThread();
+        ParameterizedThreadStartExample();
+        ThreadPooling();
+        Console.ReadLine();
+    }
+
+    static void StartThread()
+    {
+        Thread thread = new Thread(() => {
+            Console.WriteLine("Це виконується в окремому потоцi.");
+        });
+        thread.Start();
+    }
+
+    static void ParameterizedThreadStartExample()
+    {
+        Thread thread = new Thread(new ParameterizedThreadStart((object arg) => {
+            Console.WriteLine($"Це виконується в окремому потоцi з параметром: {arg}");
+        }));
+        thread.Start("Hello World!");
+    }
+
+    static void ThreadPooling()
+    {
+        ThreadPool.QueueUserWorkItem((object state) => {
+            Console.WriteLine("Це виконується в пулi потокiв.");
+        });
+    }
+}
+//Друге завдання
+using System;
+using System.Threading.Tasks;
+
+namespace AsyncAwaitDemo
+{
+    class Program
+    {
+        static async Task Main(string[] args)
+        {
+            Console.WriteLine("Start");
+
+            await PrintRandomNumber();
+            await PrintTime();
+            await WaitAndPrintMessage("Async method 1");
+            await WaitAndPrintMessage("Async method 2");
+
+            Console.WriteLine("End");
+        }
+
+        static async Task PrintRandomNumber()
+        {
+            Random rand = new Random();
+            int number = await Task.Run(() => rand.Next(100));
+            Console.WriteLine($"Random number is {number}");
+        }
+
+        static async Task WaitAndPrintMessage(string message)
+        {
+            await Task.Delay(1000);
+            Console.WriteLine(message);
+        }
+        static async Task PrintTime()
+        {
+            Console.WriteLine("PrintTime method is starting.");
+            await Task.Run(() =>
+            {
+                Console.WriteLine("Current time is: " + DateTime.Now.ToString("h:mm:ss tt"));
+            });
+            Console.WriteLine("PrintTime method is complete.");
+        }
+    }
+}
