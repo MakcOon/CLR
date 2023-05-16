@@ -1,0 +1,352 @@
+//Program.cs
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+
+namespace SchoolAPI
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}
+//Controllers.cs
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SchoolAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class StudentsController : ControllerBase
+    {
+        private readonly IStudentService _studentService;
+
+        public StudentsController(IStudentService studentService)
+        {
+            _studentService = studentService;
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<Student>> Get()
+        {
+            var students = _studentService.GetStudents();
+            return Ok(students);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Student> Get(int id)
+        {
+            var student = _studentService.GetStudentById(id);
+            if (student == null)
+            {
+                return NotFound();
+            }
+            return Ok(student);
+        }
+
+        [HttpPost]
+        public ActionResult<Student> Post([FromBody] Student student)
+        {
+            _studentService.AddStudent(student);
+            return CreatedAtAction(nameof(Get), new { id = student.Id }, student);
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult<Student> Put(int id, [FromBody] Student student)
+        {
+            if (id != student.Id)
+            {
+                return BadRequest();
+            }
+            _studentService.UpdateStudent(student);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult<Student> Delete(int id)
+        {
+            var student = _studentService.GetStudentById(id);
+            if (student == null)
+            {
+                return NotFound();
+            }
+            _studentService.DeleteStudent(id);
+            return NoContent();
+        }
+    }
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TeachersController : ControllerBase
+    {
+        private readonly ITeacherService _teacherService;
+
+        public TeachersController(ITeacherService teacherService)
+        {
+            _teacherService = teacherService;
+        }
+
+    }
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CoursesController : ControllerBase
+    {
+        private readonly ICourseService _courseService;
+
+        public CoursesController(ICourseService courseService)
+        {
+            _courseService = courseService;
+        }
+
+    }
+}
+[Route("api/[controller]")]
+[ApiController]
+public class TeachersController : ControllerBase
+{
+    private readonly ITeacherService _teacherService;
+
+    public TeachersController(ITeacherService teacherService)
+    {
+        _teacherService = teacherService;
+    }
+
+    [HttpGet]
+    public ActionResult<IEnumerable<Teacher>> Get()
+    {
+        var teachers = _teacherService.GetTeachers();
+        return Ok(teachers);
+    }
+
+    [HttpGet("{id}")]
+    public ActionResult<Teacher> Get(int id)
+    {
+        var teacher = _teacherService.GetTeacherById(id);
+        if (teacher == null)
+        {
+            return NotFound();
+        }
+        return Ok(teacher);
+    }
+
+    [HttpPost]
+    public ActionResult<Teacher> Post([FromBody] Teacher teacher)
+    {
+        _teacherService.AddTeacher(teacher);
+        return CreatedAtAction(nameof(Get), new { id = teacher.Id }, teacher);
+    }
+
+    [HttpPut("{id}")]
+    public ActionResult<Teacher> Put(int id, [FromBody] Teacher teacher)
+    {
+        if (id != teacher.Id)
+        {
+            return BadRequest();
+        }
+        _teacherService.UpdateTeacher(teacher);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public ActionResult<Teacher> Delete(int id)
+    {
+        var teacher = _teacherService.GetTeacherById(id);
+        if (teacher == null)
+        {
+            return NotFound();
+        }
+        _teacherService.DeleteTeacher(id);
+        return NoContent();
+    }
+}
+//Interface.cs
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace SchoolAPI.Services
+{
+    public interface IStudentService
+    {
+        Task<IEnumerable<Student>> GetStudents();
+        Task<Student> GetStudentById(int id);
+        Task AddStudent(Student student);
+        Task UpdateStudent(Student student);
+        Task DeleteStudent(int id);
+    }
+
+    public interface ITeacherService
+    {
+        Task<IEnumerable<Teacher>> GetTeachers();
+        Task<Teacher> GetTeacherById(int id);
+        Task AddTeacher(Teacher teacher);
+        Task UpdateTeacher(Teacher teacher);
+        Task DeleteTeacher(int id);
+    }
+
+    public interface ICourseService
+    {
+        Task<IEnumerable<Course>> GetCourses();
+        Task<Course> GetCourseById(int id);
+        Task AddCourse(Course course);
+        Task UpdateCourse(Course course);
+        Task DeleteCourse(int id);
+    }
+}
+//Service.cs
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace SchoolAPI.Services
+{
+    public class
+StudentService : IStudentService
+    {
+        private readonly List<Student> _students;
+    public StudentService()
+        {
+            _students = new List<Student>
+        {
+            new Student { Id = 1, Name = "John" },
+            new Student { Id = 2, Name = "Emily" },
+            new Student { Id = 3, Name = "Kolya" },
+            new Student { Id = 4, Name = "Denchik" },
+            new Student { Id = 5, Name = "Makson" },
+            new Student { Id = 6, Name = "Kolyambys" },
+            new Student { Id = 7, Name = "Nikolasha" },
+            new Student { Id = 8, Name = "Kilosik" },
+            new Student { Id = 9, Name = "Mykola" },
+            new Student { Id = 10, Name = "Kolyanchik" },
+        };
+        }
+
+        public async Task<IEnumerable<Student>> GetStudents()
+        {
+            return await Task.FromResult(_students);
+        }
+
+        public async Task<Student> GetStudentById(int id)
+        {
+            return await Task.FromResult(_students.FirstOrDefault(s => s.Id == id));
+        }
+
+        public async Task AddStudent(Student student)
+        {
+            _students.Add(student);
+            await Task.CompletedTask;
+        }
+
+        public async Task UpdateStudent(Student student)
+        {
+            var existingStudent = _students.FirstOrDefault(s => s.Id == student.Id);
+            if (existingStudent != null)
+            {
+                existingStudent.Name = student.Name;
+            }
+            await Task.CompletedTask;
+        }
+
+        public async Task DeleteStudent(int id)
+        {
+            var student = _students.FirstOrDefault(s => s.Id == id);
+            if (student != null)
+            {
+                _students.Remove(student);
+            }
+            await Task.CompletedTask;
+        }
+    }
+
+    public class TeacherService : ITeacherService
+    {
+        Task<IEnumerable<Teacher>> GetTeachers();
+        Task<Teacher> GetTeacherById(int id);
+        Task AddTeacher(Teacher teacher);
+        Task UpdateTeacher(Teacher teacher);
+        Task DeleteTeacher(int id);
+    }
+
+    public class CourseService : ICourseService
+    {
+        Task<IEnumerable<Course>> GetCourses();
+        Task<Course> GetCourseById(int id);
+        Task AddCourse(Course course);
+        Task UpdateCourse(Course course);
+        Task DeleteCourse(int id);
+    }
+}
+//Registration.cs
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using SchoolAPI.Services;
+
+namespace SchoolAPI
+{
+    public static class ServiceRegistration
+    {
+        public static void RegisterServices(IServiceCollection services)
+        {
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<ITeacherService, TeacherService>();
+            services.AddScoped<ICourseService, CourseService>();
+        }
+    }
+}
+//Startup.sc
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace SchoolAPI
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+
+            ServiceRegistration.RegisterServices(services);
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
